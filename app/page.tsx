@@ -3,11 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, ShoppingBag, PenTool, Waves, Clock, 
-  Menu, X, Trash2, ChevronRight, Lock, Star
+  Menu, X, Trash2, ChevronRight, Lock, Star, Sparkles
 } from 'lucide-react';
 
 // --- 元件：漂浮符號 (背景特效) ---
 const FloatingSymbols = () => {
+  const [mounted, setMounted] = useState(false);
+  
+  // 解決 Hydration 錯誤：確保隨機數只在客戶端生成
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const symbols = Array.from({ length: 25 }).map((_, i) => ({
     id: i,
     left: Math.random() * 100 + '%',
@@ -65,27 +74,26 @@ const FloatingSymbols = () => {
   );
 };
 
+// --- 定義 Props 型別 (這是為了滿足 TypeScript 教官) ---
+interface IntroAnimationProps {
+  onComplete: () => void;
+}
+
 // --- 元件：開場動畫 ---
-const IntroAnimation = ({ onComplete }) => {
+const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
-    // === 重新編排的時間軸 ===
-    setTimeout(() => setStage(1), 500);   // 光點 -> 光絲
-    setTimeout(() => setStage(2), 2000);  // 光絲 -> 光幕
-    setTimeout(() => setStage(3), 4500);  // 光幕淡去 (Logo 此時不出現)
-    
-    // --- 詩句階段 ---
-    setTimeout(() => setStage(4), 7000);  // 閉上眼...
-    setTimeout(() => setStage(4.1), 10000); // 時間/空間...
-    setTimeout(() => setStage(4.2), 13000); // 穿越...
-    
-    // --- 核心轉化 (文字) ---
-    setTimeout(() => setStage(5), 17000); // 金色核心文字
-    
-    // --- 覺醒時刻 (戲劇性轉折) ---
-    setTimeout(() => setStage(6), 22000); // 所有文字消失，Logo 浮現
-    setTimeout(() => setStage(7), 25000); // 按鈕浮現
+    // 時間軸
+    setTimeout(() => setStage(1), 500);
+    setTimeout(() => setStage(2), 2000);
+    setTimeout(() => setStage(3), 4500);
+    setTimeout(() => setStage(4), 7000);
+    setTimeout(() => setStage(4.1), 10000);
+    setTimeout(() => setStage(4.2), 13000);
+    setTimeout(() => setStage(5), 17000);
+    setTimeout(() => setStage(6), 22000);
+    setTimeout(() => setStage(7), 25000);
   }, []);
 
   return (
@@ -101,7 +109,6 @@ const IntroAnimation = ({ onComplete }) => {
         }
       `}</style>
       
-      {/* 背景特效 */}
       <div className="absolute inset-0 z-0 animate-earth-pulse pointer-events-none">
          <FloatingSymbols />
       </div>
@@ -133,17 +140,15 @@ const IntroAnimation = ({ onComplete }) => {
         }}
       />
 
-      {/* --- 內容區域 (Flex 置中) --- */}
+      {/* --- 內容區域 --- */}
       <div className="relative z-20 flex flex-col items-center justify-center w-full max-w-lg h-screen animate-earth-pulse">
         
-        {/* 舞台區：Logo 與文字的切換 */}
         <div className="relative w-full h-80 flex flex-col items-center justify-center">
           
-          {/* A. 文字組：包含詩句與金色字 (在 stage 6 消失) */}
+          {/* 文字組 */}
           <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-[3000ms]
             ${stage >= 4 && stage < 6 ? 'opacity-100 scale-100' : 'opacity-0 scale-95 blur-sm pointer-events-none'}`}>
             
-            {/* 詩句 */}
             <div className="flex flex-col items-center font-serif text-stone-300 text-base md:text-lg leading-loose tracking-[0.2em] mb-12">
               <p className={`transition-all duration-[2000ms] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] ${stage >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                 閉上眼，深呼吸...
@@ -157,7 +162,6 @@ const IntroAnimation = ({ onComplete }) => {
               </p>
             </div>
 
-            {/* 金色核心文字 */}
             <div className={`flex flex-col items-center font-serif text-sm md:text-base tracking-[0.4em] leading-relaxed transition-all duration-[3000ms]
               ${stage === 5 ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-sm'}`}
               style={{ color: '#E2852E' }}
@@ -167,7 +171,7 @@ const IntroAnimation = ({ onComplete }) => {
             </div>
           </div>
 
-          {/* B. Logo 組：在 stage 6 浮現 */}
+          {/* Logo 組 */}
           <div className={`absolute inset-0 flex items-center justify-center transition-all duration-[4000ms] ease-out
             ${stage >= 6 ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-90 blur-md pointer-events-none'}`}>
             <img 
@@ -179,7 +183,7 @@ const IntroAnimation = ({ onComplete }) => {
 
         </div>
 
-        {/* 按鈕組：在 stage 7 浮現於舞台下方 */}
+        {/* 按鈕組 */}
         <div className={`mt-12 transition-all duration-[3000ms] ${stage >= 7 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
           <button 
             onClick={onComplete}
@@ -206,7 +210,6 @@ const IntroAnimation = ({ onComplete }) => {
   );
 };
 
-// --- 元件：部落格 ---
 const Blog = () => (
   <div className="max-w-4xl mx-auto p-6 animate-fade-in relative z-10">
     <h2 className="text-3xl font-serif text-amber-50 mb-8 border-b border-amber-500/30 pb-4">靈性旅程 Blog</h2>
@@ -226,8 +229,12 @@ const Blog = () => (
   </div>
 );
 
-// --- 元件：商店 ---
-const Shop = ({ addToCart }) => (
+// --- 定義 Props 型別 ---
+interface ShopProps {
+  addToCart: (item: string) => void;
+}
+
+const Shop = ({ addToCart }: ShopProps) => (
   <div className="max-w-6xl mx-auto p-6 animate-fade-in relative z-10">
     <h2 className="text-3xl font-serif text-amber-50 mb-8 border-b border-amber-500/30 pb-4">靈魂選物 Shop</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -253,15 +260,18 @@ const Shop = ({ addToCart }) => (
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
   const [view, setView] = useState('home');
-  const [cart, setCart] = useState([]);
+  // 明確告訴 TypeScript 這裡的陣列裝的是字串
+  const [cart, setCart] = useState<string[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const addToCart = (item) => {
+  // 定義參數型別
+  const addToCart = (item: string) => {
     setCart([...cart, item]);
     alert(`已將 ${item} 加入靈魂行囊`);
   };
 
-  const NavItem = ({ target, icon: Icon, label }) => (
+  // 定義 NavItem 型別
+  const NavItem = ({ target, icon: Icon, label }: { target: string, icon: any, label: string }) => (
     <button 
       onClick={() => { setView(target); setIsMenuOpen(false); }}
       className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${view === target ? 'bg-white/10 text-amber-50' : 'text-stone-400 hover:text-amber-100'}`}
